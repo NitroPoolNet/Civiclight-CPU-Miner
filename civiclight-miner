@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BIN_DIR="$SCRIPT_DIR/bin"
+
+if [[ ! -r /proc/cpuinfo ]]; then
+    echo "ERROR: /proc/cpuinfo is unavailable; unable to select a safe miner binary." >&2
+    exit 1
+fi
+
+cpu_flags=" $(awk -F: '/^(flags|Features)[[:space:]]*:/ {print $2; exit}' /proc/cpuinfo) "
+
+has_flag() {
+    [[ "$cpu_flags" == *" $1 "* ]]
+}
+
+has_all_flags() {
+    local flag
+    for flag in "$@"; do
+        has_flag "$flag" || return 1
+    done
+}
+
+binary="cpuminer-core2"
+
+if ! has_all_flags sse2 ssse3; then
+    echo "ERROR: this CPU is older than the Core 2-class minimum supported by cpuminer-opt." >&2
+    exit 1
+fi
+
+if has_all_flags aes sha_ni avx2 bmi1 bmi2 fma avx512f avx512cd avx512dq avx512bw avx512vl; then
+    binary="cpuminer-avx512-sha"
+elif has_all_flags aes avx2 bmi1 bmi2 fma avx512f avx512cd avx512dq avx512bw avx512vl; then
+    binary="cpuminer-avx512"
+elif has_all_flags aes sha_ni avx2 bmi1 bmi2 fma sse4_2 movbe popcnt; then
+    binary="cpuminer-avx2-sha"
+elif has_all_flags aes avx2 bmi1 bmi2 fma sse4_2 movbe popcnt; then
+    binary="cpuminer-avx2"
+elif has_all_flags aes avx sse4_1 sse4_2 popcnt; then
+    binary="cpuminer-avx"
+fi
+
+miner="$BIN_DIR/$binary"
+if [[ ! -x "$miner" ]]; then
+    echo "ERROR: selected miner binary is missing or not executable: $miner" >&2
+    exit 1
+fi
+
+echo "CivicLight CPU selection: $binary"
+exec "$miner" "$@"

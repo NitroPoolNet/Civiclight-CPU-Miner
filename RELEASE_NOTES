@@ -1,0 +1,124 @@
+# CivicLight Linux CPU Miner v2.0.0
+
+This is the first NitroPool Linux release of the CivicLight CPU miner.
+
+The release provides optimized x86_64 binaries for a wide range of Intel and AMD processors, together with an automatic launcher that safely selects the best binary for the detected CPU.
+
+## Release highlights
+
+* Added CivicLight mining support for Linux
+* Added automatic CPU detection and binary selection
+* Added six optimized CPU builds:
+
+  * Core2
+  * AVX
+  * AVX2
+  * AVX2 with SHA-NI
+  * AVX-512
+  * AVX-512 with SHA-NI
+* Built on Ubuntu 22.04 with GCC 11.4 for broad Linux compatibility
+* Added NitroPool AU, EU and US mining support
+* Added configurable CPU thread count
+* Added coloured CivicLight and NitroPool startup banner
+* Added Linux release documentation
+* No developer fee
+
+## Download
+
+Download:
+
+`civiclight-miner-linux-x86_64.tar.gz`
+
+Extract the release:
+
+```bash
+tar -xzf civiclight-miner-linux-x86_64.tar.gz
+cd civiclight-miner-linux-x86_64
+```
+
+## Start mining
+
+Replace `YOUR_CIVIC_ADDRESS` with your CivicNet wallet address:
+
+```bash
+./civiclight-miner \
+  -a civiclight \
+  -o stratum+tcp://au.nitropool.net:3032 \
+  -u YOUR_CIVIC_ADDRESS.worker \
+  -p x
+```
+
+Use `-t NUMBER` to control the number of mining threads.
+
+Example using 10 threads:
+
+```bash
+./civiclight-miner \
+  -a civiclight \
+  -o stratum+tcp://au.nitropool.net:3032 \
+  -u YOUR_CIVIC_ADDRESS.worker \
+  -p x \
+  -t 10
+```
+
+## NitroPool regions
+
+* Australia: `stratum+tcp://au.nitropool.net:3032`
+* Europe: `stratum+tcp://eu.nitropool.net:3032`
+* United States: `stratum+tcp://us.nitropool.net:3032`
+
+## Automatic CPU selection
+
+Always start the miner using:
+
+```bash
+./civiclight-miner
+```
+
+The launcher automatically selects one of the following binaries:
+
+* `cpuminer-core2`
+* `cpuminer-avx`
+* `cpuminer-avx2`
+* `cpuminer-avx2-sha`
+* `cpuminer-avx512`
+* `cpuminer-avx512-sha`
+
+The selected binary is displayed during startup.
+
+## Hardware testing
+
+The release has been successfully tested on:
+
+* Intel Core i7-8700K
+
+  * 10 mining threads
+  * Automatically selected `cpuminer-avx2`
+  * Approximately 3.4–3.5 kH/s live mining rate
+
+* Intel Core i5-14400F
+
+  * 12 mining threads
+  * Automatically selected `cpuminer-avx2-sha`
+  * Approximately 5.7–5.9 kH/s live mining rate
+
+Both systems connected successfully to NitroPool and submitted accepted CivicLight shares with no stale or rejected shares during testing.
+
+## Known issue
+
+CivicLight benchmark mode currently overstates the displayed hashrate.
+
+This does not affect live mining, submitted shares or pool-side hashrate calculations. Use live mining output and pool statistics when evaluating performance.
+
+## Credits
+
+* Based on cpuminer-opt 26.1 by JayDDee
+* CivicLight algorithm and original miner work by the CivicLight project
+* Linux multi-CPU build, automatic launcher, packaging and release testing by NitroPool / No-F8
+
+## Licence
+
+Distributed under the GNU General Public License version 2 in accordance with the upstream cpuminer-opt licence.
+
+Copyright and attribution remain with their respective contributors.
+

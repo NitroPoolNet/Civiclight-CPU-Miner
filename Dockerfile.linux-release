@@ -1,0 +1,34 @@
+FROM ubuntu:22.04 AS builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        autoconf \
+        automake \
+        binutils \
+        build-essential \
+        ca-certificates \
+        libcurl4-openssl-dev \
+        libgmp-dev \
+        libjansson-dev \
+        libssl-dev \
+        libtool \
+        pkg-config \
+        zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+COPY . /src
+
+RUN chmod +x \
+        autogen.sh \
+        civiclight-miner \
+        nitro-build-allarch.sh \
+        build-linux-release.sh \
+    && ./build-linux-release.sh /release
+
+FROM ubuntu:22.04
+
+COPY --from=builder /release /release
+
+CMD ["/bin/bash", "-lc", "ls -lh /release"]
