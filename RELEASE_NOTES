@@ -1,11 +1,16 @@
-# CivicLight Linux CPU Miner v2.0.0
+# CivicLight Linux CPU Miner v2.1.0
 
-This is the first NitroPool Linux release of the CivicLight CPU miner.
+This NitroPool Performance Edition release delivers a major CivicLight v2 CPU
+mining performance update.
 
 The release provides optimized x86_64 binaries for a wide range of Intel and AMD processors, together with an automatic launcher that safely selects the best binary for the detected CPU.
 
 ## Release highlights
 
+* Added persistent per-thread CivicLight workspaces, eliminating allocation and
+  release of the memory-hard workspace for every nonce
+* Changed the miner identity to `cpuminer-nitro-2.1.0-x64L`
+* Added the NitroPool Performance Edition startup banner
 * Added CivicLight mining support for Linux
 * Added automatic CPU detection and binary selection
 * Added six optimized CPU builds:
@@ -94,31 +99,25 @@ The release has been successfully tested on:
 
   * 10 mining threads
   * Automatically selected `cpuminer-avx2`
-  * Approximately 3.4–3.5 kH/s live mining rate
+  * 5.68–5.90 kH/s live mining rate
 
 * Intel Core i5-14400F
 
   * 12 mining threads
   * Automatically selected `cpuminer-avx2-sha`
-  * Approximately 5.7–5.9 kH/s live mining rate
+  * 9.80–10.05 kH/s live mining rate
 
 Both systems connected successfully to NitroPool and submitted accepted CivicLight shares with no stale or rejected shares during testing.
-
-## Known issue
-
-CivicLight benchmark mode currently overstates the displayed hashrate.
-
-This does not affect live mining, submitted shares or pool-side hashrate calculations. Use live mining output and pool statistics when evaluating performance.
 
 ## Credits
 
 * Based on cpuminer-opt 26.1 by JayDDee
 * CivicLight algorithm and original miner work by the CivicLight project
-* Linux multi-CPU build, automatic launcher, packaging and release testing by NitroPool / No-F8
+* CivicLight thread-local workspace performance optimization, Linux multi-CPU
+  build, automatic launcher, packaging and release testing by NitroPool / NoF8
 
 ## Licence
 
 Distributed under the GNU General Public License version 2 in accordance with the upstream cpuminer-opt licence.
 
 Copyright and attribution remain with their respective contributors.
-
