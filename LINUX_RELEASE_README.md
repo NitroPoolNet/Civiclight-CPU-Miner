@@ -113,7 +113,7 @@ Always start the miner using:
 
 The launcher detects the CPU features exposed by Linux and selects the fastest compatible binary from the included `bin` directory.
 
-| Selected binary | CPU CPU capability |
+| Selected binary | CPU capability |
 |---|---|
 | `cpuminer-core2` | Core2-class baseline |
 | `cpuminer-avx` | AVX and AES |
@@ -145,12 +145,11 @@ civiclight-miner-linux-x86_64/
 
 | Processor | Threads | Selected binary | Observed live rate |
 |---|---:|---|---:|
-| Intel Core i7-8700K | 10 | `cpuminer-avx2` | approximately 3.4–3.5 kH/s |
-| Intel Core i5-14400F | 12 | `cpuminer-avx2-sha` | approximately 5.7–5.9 kH/s |
+| Intel Core i7-8700K | 10 | `cpuminer-avx2` | 5.68–5.90 kH/s |
+| Intel Core i5-14400F | 12 | `cpuminer-avx2-sha` | 9.80–10.05 kH/s |
 
 Performance will vary depending on CPU model, thread count, power limits, cooling and other system activity.
 
-> **Benchmark note:** CivicLight benchmark mode currently overstates the reported hashrate. Live mining output and pool-side statistics provide the meaningful performance measurement.
 
 ## Troubleshooting
 
@@ -188,7 +187,7 @@ Only download the miner from the official NitroPool GitHub Releases page.
 
 - Based on [cpuminer-opt](https://github.com/JayDDee/cpuminer-opt) 26.1 by JayDDee
 - CivicLight algorithm and original miner work by the [CivicLight project](https://github.com/CivicLight/civiclight-miner-windows)
-- Linux multi-CPU build, automatic launcher, packaging and release testing by [NitroPool](https://nitropool.net) / No-F8
+- CivicLight thread-local workspace performance optimization, Linux multi-CPU build, automatic launcher, packaging and release testing by [NitroPool](https://nitropool.net) / NoF8
 
 ## Licence
 

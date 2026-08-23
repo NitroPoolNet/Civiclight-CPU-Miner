@@ -1,0 +1,76 @@
+FROM ubuntu:22.04 AS builder
+
+ARG CURL_VERSION=8.12.1
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        autoconf \
+        automake \
+        ca-certificates \
+        curl \
+        file \
+        libtool \
+        libz-mingw-w64-dev \
+        make \
+        mingw-w64 \
+        pkg-config \
+        tar \
+        xz-utils \
+        zip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Use MinGW's POSIX threading model because cpuminer-opt uses pthreads.
+RUN update-alternatives --set x86_64-w64-mingw32-gcc \
+        /usr/bin/x86_64-w64-mingw32-gcc-posix \
+    && update-alternatives --set x86_64-w64-mingw32-g++ \
+        /usr/bin/x86_64-w64-mingw32-g++-posix
+
+# Build a pinned Windows libcurl using native Windows TLS (Schannel).
+WORKDIR /tmp/curl-build
+RUN curl -fsSLO "https://curl.se/download/curl-${CURL_VERSION}.tar.xz" \
+    && tar -xf "curl-${CURL_VERSION}.tar.xz" \
+    && cd "curl-${CURL_VERSION}" \
+    && CC=x86_64-w64-mingw32-gcc \
+       ./configure \
+           --host=x86_64-w64-mingw32 \
+           --prefix=/opt/civiclight-windows \
+           --with-schannel \
+           --with-zlib=/usr/x86_64-w64-mingw32 \
+           --enable-shared \
+           --disable-static \
+           --disable-manual \
+           --disable-ldap \
+           --disable-ldaps \
+           --disable-rtsp \
+           --disable-dict \
+           --disable-telnet \
+           --disable-tftp \
+           --disable-pop3 \
+           --disable-imap \
+           --disable-smtp \
+           --disable-gopher \
+           --disable-mqtt \
+           --disable-threaded-resolver \
+           --without-libpsl \
+           --without-libidn2 \
+           --without-brotli \
+           --without-zstd \
+    && make -j"$(nproc)" \
+    && make install \
+    && rm -rf /tmp/curl-build
+
+WORKDIR /src
+COPY . /src
+
+RUN chmod +x \
+        autogen.sh \
+        nitro-build-windows-allarch.sh \
+        build-windows-release.sh \
+        verify-windows-release.sh \
+    && ./build-windows-release.sh /release
+
+FROM ubuntu:22.04
+
+COPY --from=builder /release /release
+
+CMD ["/bin/bash", "-lc", "ls -lh /release"]

@@ -8,6 +8,14 @@
 // algorithm; at/after this, they use civiclight v2 (yespower-based).
 static const uint32_t CIVICLIGHT_V2_ACTIVATION_TIME = 1784797200;
 
+static const civic_yespower_params_t CIVICLIGHT_YESPOWER_PARAMS = {
+   YESPOWER_1_0,
+   2048,
+   8,
+   NULL,
+   0
+};
+
 static void sha256d_local( void *output, const void *input, size_t len )
 {
    uint8_t h[32];
@@ -32,24 +40,19 @@ static void civiclight_core_v2( void *output, const void *input, size_t len )
    uint8_t xor_buf[32];
    sha256_full( hash1, input, len );
 
-   civic_yespower_local_t local;
-   civic_yespower_init_local( &local );
-
-   civic_yespower_params_t params;
-   params.version = YESPOWER_1_0;
-   params.N = 2048;
-   params.r = 8;
-   params.pers = NULL;
-   params.perslen = 0;
-
    civic_yespower_binary_t yp_out;
-   civic_yespower( &local, hash1, 32, &params, &yp_out );
+   if ( civic_yespower_tls( hash1, sizeof(hash1),
+                            &CIVICLIGHT_YESPOWER_PARAMS, &yp_out ) != 0 )
+   {
+      // Never allow an allocation failure to produce a candidate share.
+      memset( output, 0xff, 32 );
+      return;
+   }
 
    for ( int i = 0; i < 32; i++ )
       xor_buf[i] = yp_out.uc[i] ^ hash1[i];
 
    sha256_full( output, xor_buf, 32 );
-   civic_yespower_free_local( &local );
 }
 
 // Extract nTime from raw 80-byte block header (bytes 68-71, little-endian)
@@ -60,13 +63,14 @@ static uint32_t extract_ntime( const void *header80 )
           ((uint32_t)b[70] << 16) | ((uint32_t)b[71] << 24);
 }
 
-static void civiclight_powhash( void *output, const void *header80 )
+static void civiclight_powhash( void *output, const void *header80,
+                                bool force_v2 )
 {
    uint8_t intermediate[32];
    sha256d_local( intermediate, header80, 80 );
 
    uint32_t ntime = extract_ntime( header80 );
-   if ( ntime >= CIVICLIGHT_V2_ACTIVATION_TIME )
+   if ( force_v2 || ntime >= CIVICLIGHT_V2_ACTIVATION_TIME )
       civiclight_core_v2( output, intermediate, 32 );
    else
       civiclight_core_v1( output, intermediate, 32 );
@@ -74,7 +78,7 @@ static void civiclight_powhash( void *output, const void *header80 )
 
 int civiclight_hash( void *output, const void *input, int thr_id )
 {
-   civiclight_powhash( output, input );
+   civiclight_powhash( output, input, false );
    return 1;
 }
 
@@ -94,7 +98,9 @@ int scanhash_civiclight( struct work *work, uint32_t max_nonce,
    do
    {
       edata[19] = n;
-      civiclight_powhash( hash, edata );
+      // Benchmark work is zero-initialized, including nTime. Force the current
+      // v2 path so benchmark results measure the live yespower algorithm.
+      civiclight_powhash( hash, edata, bench );
       if ( unlikely( valid_hash( hash, ptarget ) && !bench ) )
       {
          pdata[19] = bswap_32( n );

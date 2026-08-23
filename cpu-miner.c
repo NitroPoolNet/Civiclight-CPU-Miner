@@ -2831,19 +2831,23 @@ static void show_credits()
    const char *cyan   = use_colors ? CL_LCY : "";
    const char *green  = use_colors ? CL_LGR : "";
    const char *yellow = use_colors ? CL_YL2 : "";
-   const char *white  = use_colors ? CL_WHT : "";
+   const char *grey   = use_colors ? CL_SIL : "";
    const char *reset  = use_colors ? CL_N : "";
 
-   printf("\n%s  ******** CivicLight Linux CPU Miner 2.0.0 ********%s\n",
-          cyan, reset);
-   printf("%s  Based on cpuminer-opt 26.1 by JayDDee%s\n",
-          white, reset);
-   printf("%s  Linux multi-CPU release by NitroPool / No-F8%s\n\n",
-          green, reset);
-   printf("%s  CPU support:%s Core2, AVX, AVX2, SHA-NI and AVX-512\n",
+   printf("\n%s  ******** CivicLight CPU Miner v%s ********%s\n",
+          cyan, PACKAGE_VERSION, reset);
+   printf("%s          NitroPool Performance Edition%s\n\n",
           yellow, reset);
-   printf("%s  Automatic CPU detection | No developer fee%s\n",
+
+   printf("%s  Performance optimized by NitroPool / NoF8%s\n",
           green, reset);
+   printf("%s  Automatic CPU detection%s %s|%s %sNo developer fee%s\n",
+          green, reset, grey, reset, yellow, reset);
+   printf("%s  CPU builds:%s %sCore2 | AVX | AVX2 | SHA-NI | AVX-512%s\n\n",
+          yellow, reset, cyan, reset);
+
+   printf("%s  Built on cpuminer-opt 26.1 by JayDDee%s\n",
+          grey, reset);
    printf("%s  https://nitropool.net%s\n\n",
           cyan, reset);
 }
